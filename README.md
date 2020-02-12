@@ -1,3 +1,3 @@
-# paradigms-daily4
+# mandelbrot-browser
 
-bburger
+A web interface to my Mandelbrot API.
