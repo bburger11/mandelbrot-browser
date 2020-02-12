@@ -1,61 +1,104 @@
-Label.prototype    = new Item();
-Button.prototype   = new Item();
-Dropdown.prototype = new Item();
-Input.prototype    = new Item();
 Div.prototype      = new Item();
+Label.prototype    = new Item();
+Anchor.prototype   = new Item();
 Image.prototype    = new Item();
+
+// Globs
+var BASE_URL = "http://138.197.0.13:51018/bitmap/";
+var xmin = -2, xmax = 2;
+var ymin = 2, ymax = -2;
+var scale_value = 2;
+
+var heading = new Div();
+heading.createDiv("headerDiv", "container");
+
+var title = new Label();
+title.createLabel("Mandelbrot Browser", "mandelTitle");
+heading.addToDiv(title);
+
+var author = new Label();
+author.createLabel("Created by Ben Burger", "authorLabel");
+heading.addToDiv(author);
+
+var githubAnchor = new Anchor();
+githubAnchor.createAnchor("https://github.com/bburger11/mandelbrot-browser");
+var githubImage = new Image();
+githubImage.createImage("../img/github.png", "githubImage");
+githubAnchor.addToAnchor(githubImage);
+heading.addToDiv(githubAnchor);
 
 // Main div -- contains all content
 var container = new Div();
 container.createDiv("mainDiv", "container");
 
-// Create 3 panels
-var leftPanel = new Div();
-leftPanel.createDiv("optionsController", "leftPanel");
-var rightPanel = new Div();
-rightPanel.createDiv("mainCanvas", "rightPanel");
-
-
-var tLabel = new Label();
-tLabel.createLabel("Mandelbrot Browser", "titleLabel");
-leftPanel.addToDiv(tLabel);
-
-var xLabel = new Label();
-xLabel.createLabel("x-value: ", "x-val-label");
-leftPanel.addToDiv(xLabel);
-
-var xInput = new Input();
-xInput.createInput("Stuff", "x-val-input");
-leftPanel.addToDiv(xInput);
-
-var yLabel = new Label();
-yLabel.createLabel("y-value:", "y-val-label");
-leftPanel.addToDiv(yLabel);
-
-var yInput = new Input();
-yInput.createInput("Stuff", "y-val-input");
-leftPanel.addToDiv(yInput);
-
-var sLabel = new Label();
-sLabel.createLabel("scale value: ", "s-val-label");
-leftPanel.addToDiv(sLabel);
-
-var sInput = new Input();
-sInput.createInput("Stuff", "s-val-input");
-leftPanel.addToDiv(sInput);
-
-var upButton = new Button();
-upButton.createButton("UP", "upVoteButton");
-leftPanel.addToDiv(upButton);
-// upButton.addClickEventHandler(sendVote, "up");
-
-var movieImg = new Image();
-movieImg.createImage("https://picsum.photos/200/300", "movieImage");
-rightPanel.addToDiv(movieImg);
-
-// Add divs to main container
-container.addToDiv(leftPanel);
-container.addToDiv(rightPanel);
+// Image on right
+var mandelImage = new Image();
+mandelImage.createImage("../img/default.bmp", "mandelImage");
+mandelImage.addClickEventHandler("clickImage(event)");
+container.addToDiv(mandelImage);
 
 // Add main container to document
+heading.addToDocument();
 container.addToDocument();
+
+function clickImage(event) {
+    // Get mouse position on image
+    var oX = event.offsetX;
+    var oY = event.offsetY;
+    var coords = "offset - X: " + oX + ", Y coords: " + oY;
+    console.log(coords);
+    // Simple scale mapping function (in domain -> out domain)
+    const scale = (num, in_min, in_max, out_min, out_max) => {
+        return (num - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+    }
+    // Scale mouse position to current scale size
+    mandelX = scale(oX, 0, 500, xmin, xmax);
+    mandelY = scale(oY, 0, 500, ymin, ymax);
+    var coords2 = "scaled - X: " + mandelX + ", Y coords: " + mandelY;
+    console.log(coords2);
+    // Calculate next scale value
+    scale_value = scale_value * Math.exp(Math.log(0.0001/2)/(20 + 1))
+    // Get new image
+    createAndGetImage(scale_value, mandelX, mandelY);
+    // Scale the min and max values by the same amount
+    xmin = mandelX - scale_value;
+    xmax = mandelX + scale_value;
+    ymin = mandelY + scale_value;
+    ymax = mandelY - scale_value;
+}
+
+function createAndGetImage(s, x, y) {
+    if (s && x && y) {
+        var mandelPost = new XMLHttpRequest();
+        mandelPost.open("POST", BASE_URL + s + "/" + x + "/" + y + "/");
+        var data = {
+            "s": s,
+            "x": x,
+            "y": y
+        };
+        console.log(data);
+        mandelPost.onerror = function(e) {
+            console.error(mandelPost.statusText);
+        }
+        mandelPost.onload = function(e) {
+            console.log(mandelPost.responseText);
+            var filename    = JSON.parse(mandelPost.responseText)["filename"];
+            var mandelGet = new XMLHttpRequest();
+            mandelGet.responseType = "blob";
+            mandelGet.open("GET", BASE_URL + filename + "/");
+            mandelGet.onerror = function(e) {
+                console.error(mandelGet.statusText);
+            }
+            mandelGet.onload = function(e) {
+                var urlCreator = window.URL || window.webkitURL;
+                var imageUrl = urlCreator.createObjectURL(mandelGet.response);
+                document.querySelector("#mandelImage").src = imageUrl;
+            }
+            mandelGet.send(filename);
+        }
+        mandelPost.send(data);        
+    } else {
+        console.log("Something's missing.");
+    }
+
+}
