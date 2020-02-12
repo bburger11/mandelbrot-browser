@@ -10,7 +10,7 @@ var ymin = 2, ymax = -2;
 var scale_value = 2;
 
 var heading = new Div();
-heading.createDiv("headerDiv", "container");
+heading.createDiv("headerDiv", "");
 
 var title = new Label();
 title.createLabel("Mandelbrot Browser", "mandelTitle");
@@ -27,18 +27,50 @@ githubImage.createImage("../img/github.png", "githubImage");
 githubAnchor.addToAnchor(githubImage);
 heading.addToDiv(githubAnchor);
 
+var websiteAnchor = new Anchor();
+websiteAnchor.createAnchor("#");
+var websiteLabel = new Label();
+websiteLabel.createLabel("My Website (eh.. coming soon)", "websiteLabel");
+websiteAnchor.addToAnchor(websiteLabel);
+heading.addToDiv(websiteAnchor);
+
 // Main div -- contains all content
 var container = new Div();
 container.createDiv("mainDiv", "container");
+
+// Left and right divs
+var leftPanel = new Div();
+leftPanel.createDiv("descPanel", "leftPanel");
+var rightPanel = new Div();
+rightPanel.createDiv("imagePanel", "rightPanel");
+
+// Description on Left
+var instrTitle = new Label();
+instrTitle.createLabel("How to use:", "instrTitle");
+leftPanel.addToDiv(instrTitle);
+
+var instr = new Label();
+instr.createLabel("Simply click anywhere in the image to zoom to that point in the image. The center position and scale value will be updated below.", "instr");
+leftPanel.addToDiv(instr);
+
+var centerLabel = new Label();
+centerLabel.createLabel("Center: (0, 0)", "centerLabel");
+leftPanel.addToDiv(centerLabel);
+
+var scaleLabel = new Label();
+scaleLabel.createLabel("Scale: 2.0", "scaleLabel");
+leftPanel.addToDiv(scaleLabel);
 
 // Image on right
 var mandelImage = new Image();
 mandelImage.createImage("../img/default.bmp", "mandelImage");
 mandelImage.addClickEventHandler("clickImage(event)");
-container.addToDiv(mandelImage);
+rightPanel.addToDiv(mandelImage);
 
 // Add main container to document
 heading.addToDocument();
+container.addToDiv(leftPanel);
+container.addToDiv(rightPanel);
 container.addToDocument();
 
 function clickImage(event) {
@@ -60,6 +92,9 @@ function clickImage(event) {
     scale_value = scale_value * Math.exp(Math.log(0.0001/2)/(20 + 1))
     // Get new image
     createAndGetImage(scale_value, mandelX, mandelY);
+    centerLabel.setText("Center: (" + mandelX.toFixed(5) + ", " + mandelY.toFixed(5) + ")")
+    scaleLabel.setText("Scale: " + scale_value.toFixed(5));
+
     // Scale the min and max values by the same amount
     xmin = mandelX - scale_value;
     xmax = mandelX + scale_value;
