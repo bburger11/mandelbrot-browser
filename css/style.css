@@ -1,5 +1,13 @@
+body {
+    background-color: rgb(70, 70, 70);
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
 .container {
     display: flex;
+    background-color: rgb(35, 35, 35);
+    padding-top: 1em;
+    padding-bottom: 1em;
 }
 
 .leftPanel {
@@ -10,10 +18,22 @@
     flex: 3;
 }
 
+#headerDiv {
+    background-color: rgb(35, 35, 35);
+    padding-top: 1em;
+    padding-bottom: 1em;
+}
+
+#footerDiv {
+    background-color: rgb(35, 35, 35);
+    padding-top: 1em;
+    padding-bottom: 1em;
+}
+
 #githubImage {
     border-radius: 8px;
-    width: 30px;
-    height: 30px;
+    width: 80px;
+    height: 80px;
     margin-left: 1em;
 }
 
@@ -26,12 +46,25 @@
 }
 
 p {
+    color: rgb(240, 240, 240);
     margin-top: 1em;
     margin-bottom: 1em;
     margin-left: 1em;
 }
 
 a {
-    
-    margin: auto;
+    color: rgb(240, 240, 240);
+    margin-bottom: 1em;
+}
+
+button {
+    margin-left: 1em;
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 10px 25px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
 }
