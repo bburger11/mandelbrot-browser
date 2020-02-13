@@ -12,6 +12,18 @@ function Anchor() {
     }
 }
 
+function Button() {
+    this.createButton = function(text, id) {
+        this.myItem = document.createElement("button");
+        this.myItem.setAttribute("id", id);
+        this.myItem.innerHTML = text;
+    },
+    this.addClickEventHandler = function(handler, args) {
+        this.myItem.onmouseup = function() { handler(args); }
+    }
+}
+
+
 function Div() {
     this.createDiv = function(id_name, class_name) {
         this.myItem = document.createElement("div");
@@ -23,6 +35,17 @@ function Div() {
     }
 }
 
+function Image() {
+    this.createImage = function(src, id) {
+        this.myItem = document.createElement("img");
+        this.myItem.setAttribute("src", src);
+        this.myItem.setAttribute("id", id);
+    }
+    this.addClickEventHandler = function(funcName) {
+        this.myItem.setAttribute("onclick", funcName);
+    }
+}
+
 function Label() {
     this.createLabel = function(text, id) {
         this.myItem = document.createElement("p");
@@ -31,17 +54,5 @@ function Label() {
     },
     this.setText = function(text) {
         this.myItem.innerHTML = text;
-    }
-}
-
-function Image() {
-    this.createImage = function(src, id) {
-        this.myItem = document.createElement("img");
-        this.myItem.setAttribute("src", src);
-        this.myItem.setAttribute("id", id);
-        //this.myItem.style.border = "thick solid #000000";
-    }
-    this.addClickEventHandler = function(funcName) {
-        this.myItem.setAttribute("onclick", funcName);
     }
 }

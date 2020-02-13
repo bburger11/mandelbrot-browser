@@ -20,13 +20,6 @@ var author = new Label();
 author.createLabel("Created by Ben Burger", "authorLabel");
 heading.addToDiv(author);
 
-var githubAnchor = new Anchor();
-githubAnchor.createAnchor("https://github.com/bburger11/mandelbrot-browser");
-var githubImage = new Image();
-githubImage.createImage("../img/github.png", "githubImage");
-githubAnchor.addToAnchor(githubImage);
-heading.addToDiv(githubAnchor);
-
 var websiteAnchor = new Anchor();
 websiteAnchor.createAnchor("#");
 var websiteLabel = new Label();
@@ -61,17 +54,48 @@ var scaleLabel = new Label();
 scaleLabel.createLabel("Scale: 2.0", "scaleLabel");
 leftPanel.addToDiv(scaleLabel);
 
+var resetButton = new Button();
+resetButton.createButton("Reset", "resetButton");
+resetButton.addClickEventHandler(resetImage, null);
+leftPanel.addToDiv(resetButton);
+
 // Image on right
 var mandelImage = new Image();
 mandelImage.createImage("../img/default.bmp", "mandelImage");
 mandelImage.addClickEventHandler("clickImage(event)");
 rightPanel.addToDiv(mandelImage);
 
+// Github at bottom
+var footer = new Div();
+footer.createDiv("footerDiv", "");
+
+var githubAnchor = new Anchor();
+githubAnchor.createAnchor("https://github.com/bburger11/mandelbrot-browser");
+var githubImage = new Image();
+githubImage.createImage("../img/github.png", "githubImage");
+githubAnchor.addToAnchor(githubImage);
+footer.addToDiv(githubAnchor);
+
 // Add main container to document
 heading.addToDocument();
 container.addToDiv(leftPanel);
 container.addToDiv(rightPanel);
 container.addToDocument();
+footer.addToDocument();
+
+function resetImage() {
+    // Reset globs to default
+    xmin = -2;
+    xmax = 2;
+    ymin = 2;
+    ymax = -2;
+    scale_value = 2;
+
+    // Reset image and display
+    document.querySelector("#mandelImage").src = "../img/default.bmp";
+    centerLabel.setText("Center: (0, 0)")
+    scaleLabel.setText("Scale: 2.0");
+}
 
 function clickImage(event) {
     // Get mouse position on image
@@ -89,7 +113,7 @@ function clickImage(event) {
     var coords2 = "scaled - X: " + mandelX + ", Y coords: " + mandelY;
     console.log(coords2);
     // Calculate next scale value
-    scale_value = scale_value * Math.exp(Math.log(0.0001/2)/(20 + 1))
+    scale_value = scale_value * Math.exp(Math.log(0.000001/2)/(20 + 1))
     // Get new image
     createAndGetImage(scale_value, mandelX, mandelY);
     centerLabel.setText("Center: (" + mandelX.toFixed(5) + ", " + mandelY.toFixed(5) + ")")
@@ -103,37 +127,32 @@ function clickImage(event) {
 }
 
 function createAndGetImage(s, x, y) {
-    if (s && x && y) {
-        var mandelPost = new XMLHttpRequest();
-        mandelPost.open("POST", BASE_URL + s + "/" + x + "/" + y + "/");
-        var data = {
-            "s": s,
-            "x": x,
-            "y": y
-        };
-        console.log(data);
-        mandelPost.onerror = function(e) {
-            console.error(mandelPost.statusText);
-        }
-        mandelPost.onload = function(e) {
-            console.log(mandelPost.responseText);
-            var filename    = JSON.parse(mandelPost.responseText)["filename"];
-            var mandelGet = new XMLHttpRequest();
-            mandelGet.responseType = "blob";
-            mandelGet.open("GET", BASE_URL + filename + "/");
-            mandelGet.onerror = function(e) {
-                console.error(mandelGet.statusText);
-            }
-            mandelGet.onload = function(e) {
-                var urlCreator = window.URL || window.webkitURL;
-                var imageUrl = urlCreator.createObjectURL(mandelGet.response);
-                document.querySelector("#mandelImage").src = imageUrl;
-            }
-            mandelGet.send(filename);
-        }
-        mandelPost.send(data);        
-    } else {
-        console.log("Something's missing.");
+    var mandelPost = new XMLHttpRequest();
+    mandelPost.open("POST", BASE_URL + s + "/" + x + "/" + y + "/");
+    var data = {
+        "s": s,
+        "x": x,
+        "y": y
+    };
+    console.log(data);
+    mandelPost.onerror = function(e) {
+        console.error(mandelPost.statusText);
     }
-
+    mandelPost.onload = function(e) {
+        console.log(mandelPost.responseText);
+        var filename    = JSON.parse(mandelPost.responseText)["filename"];
+        var mandelGet = new XMLHttpRequest();
+        mandelGet.responseType = "blob";
+        mandelGet.open("GET", BASE_URL + filename + "/");
+        mandelGet.onerror = function(e) {
+            console.error(mandelGet.statusText);
+        }
+        mandelGet.onload = function(e) {
+            var urlCreator = window.URL || window.webkitURL;
+            var imageUrl = urlCreator.createObjectURL(mandelGet.response);
+            document.querySelector("#mandelImage").src = imageUrl;
+        }
+        mandelGet.send(filename);
+    }
+    mandelPost.send(data);
 }
